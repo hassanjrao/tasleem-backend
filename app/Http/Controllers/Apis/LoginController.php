@@ -87,13 +87,24 @@ class LoginController extends Controller
         $user->password=bcrypt($password);
         $user->save();
 
+
+        $otp = new OTP();
+        $otp = $otp->generateOTP($request->country_code, $request->phone);
+
         $user=ResourcesUser::make($user);
+
+        $data=[
+            'user'=>$user
+        ];
+
+
+        if (config('app.env') == 'local' || config('app.env') == 'staging') {
+            $data['otp'] = ResourcesOTP::make($otp);
+        }
 
         return response()->json([
             'message'=>'User registered successfully',
-            'data'=>[
-                'user'=>$user,
-            ]
+            'data'=>$data
         ],200);
     }
 
@@ -141,11 +152,61 @@ class LoginController extends Controller
 
         $user=ResourcesUser::make($user);
 
+        // create token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
             'message' => 'User verified successfully',
             'data' => [
+                'token' => $token,
                 'user' => $user
             ]
+        ], 200);
+    }
+
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            "country_code" => "required|int",
+            "phone" => "required|numeric",
+        ], [
+            'country_code.required' => 'Country code is required',
+            'phone.required' => 'Phone number is required',
+        ]);
+
+        $user = User::where('country_code', $request->country_code)
+        ->where('phone', $request->phone)
+        ->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 422);
+        }
+
+        if(!$user->is_verified){
+            return response()->json([
+                'message'=>'User not verified'
+            ],422);
+        }
+
+        $otp = new OTP();
+        $otp = $otp->generateOTP($request->country_code, $request->phone);
+
+        $user=ResourcesUser::make($user);
+
+        $data=[
+            'user'=>$user
+        ];
+
+        if (config('app.env') == 'local' || config('app.env') == 'staging') {
+            $data['otp'] = ResourcesOTP::make($otp);
+        }
+
+        return response()->json([
+            'message' => 'OTP sent successfully',
+            'data' => $data
         ], 200);
     }
 

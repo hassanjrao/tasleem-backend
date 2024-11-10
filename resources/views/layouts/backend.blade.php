@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 
-        <title>OneUI - Bootstrap 5 Admin Template &amp; UI Framework</title>
+        <title>{{ config('app.name') }}</title>
 
         <meta name="description" content="OneUI - Bootstrap 5 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
         <meta name="author" content="pixelcave">
@@ -344,7 +344,7 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>                        
+                        </div>
                         <!-- END User Dropdown -->
 
                         <!-- Notifications Dropdown -->
@@ -431,7 +431,7 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>                        
+                        </div>
                         <!-- END Notifications Dropdown -->
 
                         <!-- Toggle Side Overlay -->
